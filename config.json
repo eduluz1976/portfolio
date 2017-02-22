@@ -1,0 +1,8 @@
+{
+    "defaultPath" : "./app",
+    "default" : {
+	"context" : "finantial",
+	"action": "show_main_form"	
+    }
+
+}
