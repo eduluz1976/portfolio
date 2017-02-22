@@ -1,15 +1,8 @@
 <?php
-
-
 require_once '../lib/Validator.class.php';
 
 
-
 class ClasseTestValidator extends PHPUnit_Framework_TestCase {
-    
-    
-    
-    
     
 
     /**
