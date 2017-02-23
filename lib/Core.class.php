@@ -230,3 +230,38 @@ class App {
 
 
 
+trait MicroAppSmarty {
+    
+    public $smarty;
+    
+    
+    public function initSmarty() {
+	$this->smarty = new \Smarty();
+
+	$this->smarty->template_dir =  \core\App::getInstance()->getPath(). '/tpl/';
+	$this->smarty->compile_dir  = \core\App::getInstance()->getPath(). '/tpl_c/';
+
+    }
+    
+    /**
+     * 
+     * @return \Smarty
+     */
+    public function getSmarty() {
+	return $this->smarty;
+    }
+    
+}
+
+
+
+
+trait MicroAppUtils {
+    
+    public function sendJSON($obj) {
+	header('Content-type: text/json');
+	echo json_encode($obj,JSON_OBJECT_AS_ARRAY);
+	exit;
+    }
+    
+}
