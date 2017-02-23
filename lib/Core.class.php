@@ -2,6 +2,9 @@
 
 namespace core;
 
+//require_once './lib/AutoLoad.class.php';
+
+
 /**
  * Simple framework to manage small web projects
  * 
@@ -10,6 +13,7 @@ namespace core;
  * @package Portfolio
  */
 class App {
+//    use AutoLoad;
     
     protected static $instance;
     
@@ -24,10 +28,14 @@ class App {
 	
 	$this->defParms();
 	
-	
+	spl_autoload_register(array($this,'autoload'));
 	
     }
     
+    
+    protected function autoload() {
+	
+    }
     
     /**
      * Load the app definitions of config file
@@ -38,7 +46,25 @@ class App {
 	if (file_exists($filename)) {
 	    $textConfig = file_get_contents($filename);
 	    $this->config = json_decode($textConfig, JSON_OBJECT_AS_ARRAY);
+	    
+	    // loading registered addons
+	    if (array_key_exists('addons', $this->config)) {
+		foreach ($this->config['addons'] as $addon) {
+		    if (array_key_exists('path', $addon) 
+			&& file_exists('./addons/'.$addon['path'])) {
+			    if (array_key_exists('includes', $addon) && is_array($addon['includes']) ) {
+				foreach ($addon['includes'] as $include) {
+				    $filename = './addons/'.$addon['path'].'/'.$include;
+				    if (file_exists($filename)) {
+					include_once($filename);
+				    }
+				}
+			    }
+			}
+		}
+	    }
 	}
+	
     }
     
     
@@ -133,12 +159,8 @@ class App {
      * @throws \Exception
      */
     protected function checkPathExists() {
-	
-	if (!array_key_exists('defaultPath', $this->config)) {
-	    $path = $this->config['defaultPath'];
-	} else {
-	    $path = './app';
-	}
+
+	$path = $this->getBasePath();
 	
 	if (!file_exists($path)) {
 	    throw new \Exception('root path not exist ('.$path.')');
@@ -151,6 +173,10 @@ class App {
 	    throw new \Exception('context path not exist ('.$this->getContext().')');
 	}
 	
+	if (file_exists($path.'/include.php')) {
+	    include_once $path.'/include.php';
+	}
+	
 	
 	$path .= '/'.$this->getAction().'.php';
 	
@@ -159,6 +185,29 @@ class App {
 	}
 	return $path;
 	
+    }
+    
+    /**
+     * Return the application base path;
+     * @return string
+     */
+    public function getBasePath() {
+	if (!array_key_exists('defaultPath', $this->config)) {
+	    $path = $this->config['defaultPath'];
+	} else {
+	    $path = './app';
+	}
+	return $path;
+    }
+    
+    /**
+     * Return the actual application path
+     * @return string
+     */
+    public function getPath() {
+	$path = $this->getBasePath();
+	$path .= '/'.$this->getContext();
+	return $path;
     }
     
     
@@ -178,3 +227,6 @@ class App {
     
     
 }
+
+
+
