@@ -3,6 +3,14 @@
     "default" : {
 	"context" : "finantial",
 	"action": "show_main_form"	
-    }
+    },
+    "addons" : [
+	{ "addon": "Smarty", 
+	  "path" : "smarty",
+	  "includes" : [
+	      "libs/Smarty.class.php"
+	      ]
+	}
+    ]
 
 }

@@ -142,7 +142,9 @@ class App {
 	try {
 	    $path = $this->checkPathExists();
 	    ob_start();
-	    include_once($path);
+	    
+	    $this->execute($path);
+	    
 	    $content = ob_get_clean();
 
 	    echo $content;
@@ -152,6 +154,40 @@ class App {
 
     }
     
+    
+    /**
+     * Execute designated action 
+     * @param string $path
+     * @throws \Exception
+     */
+    protected function execute($path) {
+	if ($this->getParm('_class')) {
+
+	    $className = $this->getParm('_class');
+	    $method = $this->getAction();
+
+	    if (!class_exists($className)) {
+		throw new \Exception("Class $className not found");
+	    }
+	    
+	    $o = new $className();
+	    if (!method_exists($o, $method)) {
+		throw new \Exception("Method $method not found");
+	    }
+
+	    $o->$method();
+
+	} else {
+	    $path .= '/'.$this->getAction().'.php';
+
+	    if (!file_exists($path)) {
+		throw new \Exception('action not exist (' . $this->getAction().')');
+	    }
+	    include_once($path);
+
+	}
+	
+    }
     
     /**
      * Check if the path to the main action-script exists
@@ -177,12 +213,7 @@ class App {
 	    include_once $path.'/include.php';
 	}
 	
-	
-	$path .= '/'.$this->getAction().'.php';
-	
-	if (!file_exists($path)) {
-	    throw new \Exception('action not exist (' . $this->getAction().')');
-	}
+
 	return $path;
 	
     }
